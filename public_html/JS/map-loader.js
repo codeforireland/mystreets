@@ -1,27 +1,10 @@
 var map;
+var data;
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var gData
-    var URL = "0Avj-ESJsQ-8rdHZqMS04QzY5MWJDSzRVczNKV3JuZ0E"
-    Tabletop.init( { key: URL, callback: showInfo, simpleSheet: true } )
-  })
-
-  function showInfo(data) {
-    gData = data
-    var optionsJSON = ["placename", "photo-url"]
-    var template = "<ul><li><a href='{{photo-url}}' target='_blank'>"
-                 + "<img src='{{photo-url}}'></a></li>"
-                 + "<li><h4>{{placename}}</h4></li></ul>"
-    var geoJSON = Sheetsee.createGeoJSON(gData, optionsJSON)
-    var map = Sheetsee.loadMap("map")
-    Sheetsee.addTileLayer(map, 'examples.map-20v6611k')
-    var markerLayer = Sheetsee.addMarkerLayer(geoJSON, map, template)
-  }
-
-$(document).ready(function()
-{
+$(document).ready(function() {
     map = new GMaps({
         el: '#map_canvas',
+		//Centre map
         lat: 53.346046,
         lng: -6.260094,
 		zoom: 12,
@@ -32,17 +15,18 @@ $(document).ready(function()
 		},
 		panControl : false,
 		click: function(e){
-			addCustomMarkerToMap();
+			handleMapClick();
 		},/*
 		dragend: function(e){
 		  alert('Drag Event');
 		}*/
+		
 	  });
 
     map.setContextMenu({
         control: 'map',
         options: [{
-                title: 'Add marker',
+                title: 'Adopt This Street',
                 name: 'add_marker',
                 action: function(e) 
                 {
@@ -57,41 +41,49 @@ $(document).ready(function()
                 }
             }]
     });
-	/*
-	GMaps.geolocate({
-    success: function(position){
-      map.setCenter(position.coords.latitude, position.coords.longitude);
-
-      map.addMarker({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        title: 'You are here.',
-        infoWindow: {
-          content: '<p>You are here!</p>'
-        }
-      });
-    },
-    error: function(error){
-      alert('Geolocation failed: '+error.message);
-    },
-    not_supported: function(){
-      alert("Your browser does not support geolocation");
-    }
-  });*/
-
-    map.setContextMenu({
-        control: 'marker',
-        options: [{
-                title: 'Center here',
-                name: 'center_here',
-                action: function(e) 
-                {
-                    this.setCenter(e.latLng.lat(), e.latLng.lng());
-                }
-            }]
-    });
+	displayMarkers();
 });
 
-function addCustomMarkerToMap() {
+function displayMarkers() {
+	var baseUrl = "https://spreadsheets.google.com/tq?tqx=out:csv&key=0Avj-ESJsQ-8rdHZqMS04QzY5MWJDSzRVczNKV3JuZ0E&tq=";
+	var selectAll = "select%20*";
+
+	var fullUrl = baseUrl+selectAll;
+
+	$.ajax({
+		type: "GET",
+		url: fullUrl,
+		dataType: "text",
+		success: processData,
+		error: function(){ alert("failed: " + fullUrl); }
+	});
+}
+
+function processData(rawData) {
+	var posOfTitle = 2;
+	var posOfLat = 6;
+	var posOfLng = 7;
+	data = rawData.replace("// Data table response","");
+	info = $.csv.toArrays(data.substring(178, data.length));
+
+	// Loop through both dimensions
+	var markers = []
+	for (i = 0; i < info.length; ++i) {
+		title = info[i][posOfTitle];
+		lat = info[i][posOfLat];
+		lng = info[i][posOfLng];
+		marker = {
+			lat: lat,
+			lng: lng,
+			infoWindow: {
+				content: title
+			}
+		}
+		markers.push(marker);
+	}
+	map.addMarkers(markers);
+}
+
+function handleMapClick() {
     //alert('Click event');
 }

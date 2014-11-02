@@ -1,20 +1,37 @@
 <?php
 require 'config.php';
 foreach ($_GET as $key => $value) {
-    switch ($value) {
+	switch ($value) {
 		case 'getmarkers':
 			getMarkersFromDB();
 			break;
-        case 'create' :
+		case 'create' :
 			createDatabaseTable();
-            break;
-        case 'populate' :
+			break;
+		case 'populate' :
 			populateDB();
-            break;
-        default :
-            echo 'Unknown ';
-            break;
-    }
+			break;
+		case 'register';
+			registerUser();
+			break;
+		default :
+			echo 'Unknown command';
+			break;
+	}
+}
+
+function registerUser() {
+	//TODO: Validate user input
+	$twitter = htmlspecialchars($_POST["twitter"]); 
+	$email = htmlspecialchars($_POST["email"]); 
+	$password = htmlspecialchars($_POST["password"]); 
+	echo "twitter: $twitter<br/>email: $email<br/>password: $password";
+	//TODO: Add to database
+}
+
+function isUserLoggedIn() {
+	//TODO: 
+	return false;
 }
 
 function getMarkersFromDB() {
@@ -46,9 +63,8 @@ function getMarkersFromDB() {
 		$returnArray[$index] = $tmpCsv;
 		$index++;
 	}
-	
+
 	foreach($returnArray as $child) {
-		//echo "\n<br />=========================================================\n<br />";
 		echo $child . "\n";
 	}
 

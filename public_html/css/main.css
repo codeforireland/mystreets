@@ -33,6 +33,10 @@ body
     width: 150px;
     border-right: 1px solid #ccc;
     text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 20px;
+	padding-right: 20px;
 }
 
 .map-holder

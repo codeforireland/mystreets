@@ -36,13 +36,7 @@ $(document).ready(function() {
                     lat = e.latLng.lat();
                     lng = e.latLng.lng();
                     console.log(lat + "," + lng);
-                    displayAdoptStreetDialog();
-                    /*
-                    this.addMarker({
-                        lat: e.latLng.lat(),
-                        lng: e.latLng.lng(),
-                        title: 'New marker'
-                    });*/
+                    displayAdoptStreetDialog(lat, lng);
                     this.hideContextMenu();
                 }
             }]
@@ -50,8 +44,106 @@ $(document).ready(function() {
 	displayMarkers();
 });
 
-//Download raw data and convert to markers
+function handleMapClick() {
+	//alert("handle map click");
+}
+//Pull data from database and display on map
 function displayMarkers() {
+		$.ajax({
+		type: "GET",
+		url: "functions.php?command=getmarkers",
+		dataType: "text",
+		success: processData,
+		error: function(){ alert("failed: " + fullUrl); }
+	});
+}
+function processData(rawData) {
+	info = $.csv.toArrays(rawData);
+	var posOfTitle = 2;
+	var posOfLat = 6;
+	var posOfLng = 7;
+
+	var markers = []
+	for (i = 0; i < info.length; ++i) {
+		title = info[i][posOfTitle];
+		lat = info[i][posOfLat];
+		lng = info[i][posOfLng];
+		marker = {
+			lat: lat,
+			lng: lng,
+			infoWindow: {
+				content: title
+			}
+		}
+		markers.push(marker);
+	}
+	map.addMarkers(markers);
+}
+
+//Popup a form asking user to fill in details to adopt a street
+function displayAdoptStreetDialog(lat, lng) {
+	var page = "addform.php?lat="+lat+"&lng="+lng;
+
+	var $dialog = $('<div></div>')
+		.html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
+		.dialog({
+		   autoOpen: false,
+		   modal: true,
+		   height: 625,
+		   width: 500,
+		   title: "Adopt A Street"
+		});
+	$dialog.dialog('open');
+}
+
+function displayAdoptStreetDialogOLD() {
+
+	var page = "https://docs.google.com/forms/d/1-jkcWa5Vccr0a2-PC5ZQqgHn_W-U6BoU_ucsdwnOzXo/viewform";
+
+	var $dialog = $('<div></div>')
+				   .html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
+				   .dialog({
+					   autoOpen: false,
+					   modal: true,
+					   height: 625,
+					   width: 500,
+					   title: "Adopt A Street"
+				   });
+	$dialog.dialog('open');
+}
+
+//Get the values from the form
+function captureForm() {
+	var twitter    = document.getElementById("twitter-id").value;
+	var name       = document.getElementById("name").value;
+	var address    = document.getElementById("address").value;
+	var city       = document.getElementById("city").value;
+	var state      = document.getElementById("state").value;
+	var postcode   = document.getElementById("postcode").value;
+	var country    = document.getElementById("country").value;
+	var nextMeetup = document.getElementById("next-meetup").value;
+	var activities = document.getElementById("activities").value;
+	addToDatabase(twitter, name, address, city, state, postcode, lat, lng, country, nextMeetup, activities);
+	return false;
+}
+
+function addToDatabase(twitter, name, address, city, state, postcode, lat, lng, country, nextMeetup, activities) {
+//TODO: Add code in here to add to database
+	alert("TODO: Add to database");
+}
+
+
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+/////////////////OLD STUFF/////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+//Download raw data and convert to markers
+function displayMarkersOLD() {
 	var baseUrl = "https://spreadsheets.google.com/tq?tqx=out:csv&key=0Avj-ESJsQ-8rdHZqMS04QzY5MWJDSzRVczNKV3JuZ0E&tq=";
 	var selectAll = "select%20*";
 
@@ -61,13 +153,13 @@ function displayMarkers() {
 		type: "GET",
 		url: fullUrl,
 		dataType: "text",
-		success: processData,
+		success: processDataOLD,
 		error: function(){ alert("failed: " + fullUrl); }
 	});
 }
 
 //Process the raw data and add to map
-function processData(rawData) {
+function processDataOLD(rawData) {
 	var posOfTitle = 2;
 	var posOfLat = 6;
 	var posOfLng = 7;
@@ -90,57 +182,4 @@ function processData(rawData) {
 		markers.push(marker);
 	}
 	map.addMarkers(markers);
-}
-
-//Popup a form asking user to fill in details to adopt a street
-function displayAdoptStreetDialog() {
-
-	$("body").append ( '\
-		<div id="dialog" title="Adopt a Street">\
-		<form method="post" id="adoptForm" onSubmit="captureForm()">\
-		<fieldset>\
-		  <label for="twitter-id">Twitter ID</label>\
-		  <input type="text" name="twitter-id" id="twitter-id" placeholder="eg, @michael" class="text ui-widget-content ui-corner-all">\
-		  <label for="name">Name</label>\
-		  <input type="text" name="name" id="name" placeholder="eg, Michael Murphy" class="text ui-widget-content ui-corner-all">\
-		  <label for="address">Address</label>\
-		  <input type="text" name="address" id="address" placeholder="eg, 1 Country Road" class="text ui-widget-content ui-corner-all">\
-		  <label for="city">City/Town</label>\
-		  <input type="text" name="city" id="city" placeholder="eg, Dublin" class="text ui-widget-content ui-corner-all">\
-		  <label for="state">State</label>\
-		  <input type="text" name="state" id="state" placeholder="Optional" class="text ui-widget-content ui-corner-all">\
-		  <label for="postcode">postcode</label>\
-		  <input type="text" name="postcode" id="postcode" placeholder="Optional" class="text ui-widget-content ui-corner-all">\
-		  <label for="country">Country</label>\
-		  <input type="text" name="country" id="country" placeholder="eg, Ireland" class="text ui-widget-content ui-corner-all">\
-		  <label for="next-meetup">Next Meetup</label>\
-		  <input type="text" name="next-meetup" id="next-meetup" placeholder="eg, 05/10/2015" class="text ui-widget-content ui-corner-all">\
-		  <label for="activities">Activities</label>\
-		  <input type="text" name="activities" id="activities" placeholder="eg, litter patrol, gardening, painting" class="text ui-widget-content ui-corner-all">\
-		  <input type="submit" value="Adopt">\
-		</fieldset>\
-	  </form>\
-	</div>\
-	');
-	$( "#dialog" ).dialog();
-}
-
-//Get the values from the form
-function captureForm() {
-	var twitter    = document.getElementById("twitter-id").value;
-	var name       = document.getElementById("name").value;
-	var address    = document.getElementById("address").value;
-	var city       = document.getElementById("city").value;
-	var state      = document.getElementById("state").value;
-	var postcode   = document.getElementById("postcode").value;
-	var country    = document.getElementById("country").value;
-	var nextMeetup = document.getElementById("next-meetup").value;
-	var activities = document.getElementById("activities").value;
-	addToDatabase(twitter, name, address, city, state, postcode, lat, lng, country, nextMeetup, activities);
-	return false;
-}
-
-function addToDatabase(twitter, name, address, city, state, postcode, lat, lng, country, nextMeetup, activities) {
-//TODO: Add code in here to add to database
-	alert("TODOL Add to database");
 }

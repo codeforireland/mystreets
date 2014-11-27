@@ -146,7 +146,7 @@ $conn = mysql_connect(DB_HOST, DB_USERNAME, DB_PASSWORD);
 		( 'twitter012', 'Citizen 12', 'Cork St', 'Dublin', '','',  'Ireland', '53.3377303', '-6.2847779', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter013', 'Citizen 13', 'Parnell St', 'Dublin', '','',  'Ireland', '53.3307307', '-6.2855929', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter014', 'Citizen 14', 'Rutland Avenue', 'Dublin', '','',  'Ireland', '53.3294324', '-6.2915006', '9/20/2014', 'Litter cleanup' ),
-		( 'twitter016', 'Citizen 15', 'Keeper Road', 'Dublin', '','',  'Ireland', '53.331824', '-6.3018463', '9/20/2014', 'Litter cleanup')");
+		( 'twitter016', 'Citizen 15', 'Keeper Road', 'Dublin', '','',  'Ireland', '53.331824', '-6.3018463', '9/20/2014', 'Litter cleanup')";
 	mysql_select_db( DB_DATABASE );
 	$retval = mysql_query( $sql, $conn );
 	if(! $retval ) {

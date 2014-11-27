@@ -14,6 +14,9 @@ foreach ($_GET as $key => $value) {
 		case 'register';
 			registerUser();
 			break;
+		case 'adopt':
+			adoptAStreet();
+			break;
 		default :
 			echo 'Unknown command';
 			break;
@@ -27,6 +30,21 @@ function registerUser() {
 	$password = htmlspecialchars($_POST["password"]); 
 	echo "twitter: $twitter<br/>email: $email<br/>password: $password";
 	//TODO: Add to database
+}
+
+function adoptAStreet() {
+	//TODO: Validate user input
+	$twitter = htmlspecialchars($_POST["twitter"]); 
+	$email = htmlspecialchars($_POST["email"]);	
+	$streetName = htmlspecialchars($_POST["streetName"]); 
+	$postcode = htmlspecialchars($_POST["postcode"]);
+	$lat = htmlspecialchars($_POST["lat"]); 
+	$lng = htmlspecialchars($_POST["lng"]);
+	$activities = htmlspecialchars($_POST["activities"]); 
+	$nextMeet = htmlspecialchars($_POST["nextMeet"]);
+	$action = htmlspecialchars($_POST["action"]);
+
+	//TODO: validate and insert into DB
 }
 
 function isUserLoggedIn() {

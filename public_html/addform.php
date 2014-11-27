@@ -9,6 +9,7 @@ $lng = htmlspecialchars($_GET["lng"]);
 	<p><b>Street Info</b></p>
 	Street Name<br /><input type="text" name="streetName"><br /><br />
 	Postcode<br /><input type="text" name="postcode"><br /><br />
+	County<br /><input type="text" name="county"><br /><br />
 	latitude<br /><input type="text" value="<?php echo $lat; ?>" name="lat"><br /><br />
 	longitude<br /><input type="text" value="<?php echo $lng; ?>" name="lng"><br /><br />
 	<p><b>Tell us about your activities</b> eg "BBQ", "Litter duty" etc</p>

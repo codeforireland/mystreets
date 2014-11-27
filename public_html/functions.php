@@ -17,6 +17,9 @@ foreach ($_GET as $key => $value) {
 		case 'adopt':
 			adoptAStreet();
 			break;
+		case 'info':
+			loadPhpInfo();
+			break;
 		default :
 			echo 'Unknown command';
 			break;
@@ -38,6 +41,7 @@ function adoptAStreet() {
 	$email = htmlspecialchars($_POST["email"]);	
 	$streetName = htmlspecialchars($_POST["streetName"]); 
 	$postcode = htmlspecialchars($_POST["postcode"]);
+	$county = htmlspecialchars($_POST["county"]);
 	$lat = htmlspecialchars($_POST["lat"]); 
 	$lng = htmlspecialchars($_POST["lng"]);
 	$activities = htmlspecialchars($_POST["activities"]); 
@@ -45,6 +49,8 @@ function adoptAStreet() {
 	$action = htmlspecialchars($_POST["action"]);
 
 	//TODO: validate and insert into DB
+	mysql_query("INSERT INTO " + $main_table + " VALUES 
+		( $twitter, $email, $streetName, $postcode, $county, $lat, $lng, $activities, $nextMeet, $action )");
 }
 
 function isUserLoggedIn() {
@@ -90,26 +96,42 @@ function getMarkersFromDB() {
 }
 
 function createDatabaseTable() {
-	mysql_query("
-				CREATE TABLE `mystreet` (
-				  `id` int(11) NOT NULL AUTO_INCREMENT,
-				  `username` varchar(255) DEFAULT NULL,
-				  `name` varchar(255) DEFAULT NULL,
-				  `address` varchar(255) DEFAULT NULL,
-				  `city` varchar(255) DEFAULT NULL,
-				  `state` varchar(255) DEFAULT NULL,
-				  `postcode` varchar(255) DEFAULT NULL,
-				  `country` varchar(255) DEFAULT NULL,
-				  `lat` varchar(255) DEFAULT NULL,
-				  `lng` varchar(255) DEFAULT NULL,
-				  `next_meetup` varchar(255) DEFAULT NULL,
-				  `activities` varchar(255) DEFAULT NULL,
-				  PRIMARY KEY (`id`)
-				) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;");
+	$conn = mysql_connect(DB_HOST, DB_USERNAME, DB_PASSWORD);
+	if(! $conn ) {
+	  die('Could not connect: ' . mysql_error());
+	}
+	echo 'Connected successfully<br />';
+	$sql = "CREATE TABLE `" + DB_MAIN_TABLE + "` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT,
+			  `username` varchar(255) DEFAULT NULL,
+			  `name` varchar(255) DEFAULT NULL,
+			  `address` varchar(255) DEFAULT NULL,
+			  `city` varchar(255) DEFAULT NULL,
+			  `state` varchar(255) DEFAULT NULL,
+			  `postcode` varchar(255) DEFAULT NULL,
+			  `country` varchar(255) DEFAULT NULL,
+			  `lat` varchar(255) DEFAULT NULL,
+			  `lng` varchar(255) DEFAULT NULL,
+			  `next_meetup` varchar(255) DEFAULT NULL,
+			  `activities` varchar(255) DEFAULT NULL,
+			  PRIMARY KEY (`id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;";
+	mysql_select_db( DB_DATABASE );
+	$retval = mysql_query( $sql, $conn );
+	if(! $retval ) {
+	  die('Could not create table: ' . mysql_error());
+	}
+	echo "Table created successfully\n";
+	mysql_close($conn);
 }
 
 function populateDB() {
-	mysql_query("INSERT INTO " + $main_table + " VALUES 
+$conn = mysql_connect(DB_HOST, DB_USERNAME, DB_PASSWORD);
+	if(! $conn ) {
+	  die('Could not connect: ' . mysql_error());
+	}
+	echo 'Connected successfully<br />';
+	$sql = "INSERT INTO " + DB_MAIN_TABLE + " VALUES 
 		( 'twitter001', 'Citizen 1', 'Carrow Road', 'Dublin', '','', 'Ireland', '53.33236', '-6.323961', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter002', 'Citizen 2', 'Landsdowne Valley Park', 'Dublin', '','',  'Ireland', '53.333707', '-6.325459', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter003', 'Citizen 3', 'Kilworth Road', 'Dublin', '','',  'Ireland', '53.332959', '-6.324742', '9/20/2014', 'Litter cleanup' ),
@@ -125,6 +147,17 @@ function populateDB() {
 		( 'twitter013', 'Citizen 13', 'Parnell St', 'Dublin', '','',  'Ireland', '53.3307307', '-6.2855929', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter014', 'Citizen 14', 'Rutland Avenue', 'Dublin', '','',  'Ireland', '53.3294324', '-6.2915006', '9/20/2014', 'Litter cleanup' ),
 		( 'twitter016', 'Citizen 15', 'Keeper Road', 'Dublin', '','',  'Ireland', '53.331824', '-6.3018463', '9/20/2014', 'Litter cleanup')");
+	mysql_select_db( DB_DATABASE );
+	$retval = mysql_query( $sql, $conn );
+	if(! $retval ) {
+	  die('Could not create table: ' . mysql_error());
+	}
+	echo "Table created successfully\n";
+	mysql_close($conn);
 	Print "Your table has been populated"; 
+}
+
+function loadPhpInfo() {
+	phpinfo();
 }
 ?>
